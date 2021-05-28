@@ -88,7 +88,7 @@ function addPRLabels() {
   console.log("Adding PR Labels")
 
 
-    if ($(".link-status-in-jira").length == 0) {
+    if ($(".link-status-in-jira-wrapper").length == 0) {
 
       console.log("link-status-in-jira not found, creating it")
       console.log("Linked Columns " + LINKED_COLUMNS)
@@ -112,22 +112,31 @@ function addPRLabels() {
 
         // select the right columns if there are multiple, and search for all cards in those
         // columns afterwards
+        var allSelectors = '[id="ghx-backlog-column"] .ghx-issue-compact'
+
         var columnSelectors = JIRA_COLUMNS.map(function (element) {
             return '[data-column-id="' + element + '"] .ghx-issue';
         }).join(', ');
-        var cards = document.querySelectorAll(columnSelectors);
+
+        if (columnSelectors) {
+          allSelectors = allSelectors.concat(`, ${columnSelectors}`)
+        }
+
+        console.log("All selectors: " + allSelectors)
+
+        var cards = document.querySelectorAll(allSelectors);
 
         console.log("Cards: " + cards)
 
-        console.log("Column selectors: " + columnSelectors)
 
         Array.prototype.forEach.call(cards, function (card) {
             console.log("Populating Card: " + card)
             populateIssueCard(card);
         });
 
+
     }
-    //setTimeout(addPRLabels, 1500);
+    setTimeout(addPRLabels, 1500);
 }
 
 function linkStatus(status) {
