@@ -1,0 +1,67 @@
+.code-review {
+    position: relative;
+    cursor: default;
+}
+
+.code-review .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 200;
+    width: 120px;
+    top: 30px;
+    left: 50%;
+    margin-left: -60px;
+}
+
+.code-review:hover .tooltiptext {
+    visibility: visible;
+}
+
+.code-review .tooltiptext::after {
+    content: " ";
+    position: absolute;
+    bottom: 100%;
+    /* At the top of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent black transparent;
+}
+
+.pullRequestNode {
+    margin-bottom: 5px;
+}
+
+.pullRequestNode:last-child {
+    margin-bottom: 0px;
+}
+
+.pull-request-label {
+    margin-top: 3px;
+    height: 20px;
+    padding: 0.15em 4px;
+    font-size: 12px;
+    font-weight: 600 line-height:15px;
+    border-radius: 2px;
+}
+
+.repo-name {
+    font-size: 10px;
+    font-style: italic;
+    padding-left: 5px;
+}
+
+.pr-heading {
+    border-bottom: 2px solid #dfe1e6;
+    color: #6c798f;
+    font-weight: 500;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
