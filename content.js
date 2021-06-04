@@ -80,11 +80,10 @@ function populateIssueCard(card) {
                   if (data.fields.customfield_10020) {
                     $.each(data.fields.customfield_10020, function () {
                       console.log(`Sprint ${this.name} is ${this.state}`)
-                      if (this.state != "closed") {
-                        linked_sprint = this.name
-                        console.log(`Linked sprint = ${linked_sprint}`)
-                      }
+                      linked_sprint = this.name
+                      console.log(`Linked sprint = ${linked_sprint}`)
                     })
+                    console.log(`Linked sprint = ${linked_sprint}`)
                   }
 
                   console.log(`Link Type: ${link_type} Issue Key: ${linked_issue_key} Status: ${linked_issue_status} Sprint: ${linked_sprint}`)
