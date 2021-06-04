@@ -39,7 +39,6 @@ window.addEventListener("message", function (event) {
 });
 
 function populateIssueCard(card) {
-  console.log("Populating card " + $(card).attr("data-issue-key"))
     $.getJSON("https://" + JIRA_HOSTNAME + "/rest/api/latest/issue/" + $(card).attr("data-issue-key"), function (data) {
       if (data.fields.issuelinks.length > 0) {
 
@@ -53,19 +52,24 @@ function populateIssueCard(card) {
                 var link_type
                 var linked_issue_key
                 var linked_issue_status
+                var linked_issue_status_category
                 var linked_issue_summary
                 var linked_url
+                var inward = false
 
                 if (this["inwardIssue"]) {
                   link_type = this.type.inward
                   linked_issue_key = this.inwardIssue.key
                   linked_issue_status = this.inwardIssue.fields.status.name
+                  linked_issue_status_category = this.inwardIssue.fields.status.statusCategory.name
                   linked_issue_summary = this.inwardIssue.fields.summary
                   linked_url = this.inwardIssue.self
+                  inward = true
                 } else {
                   link_type = this.type.outward
                   linked_issue_key = this.outwardIssue.key
                   linked_issue_status = this.outwardIssue.fields.status.name
+                  linked_issue_status_category = this.outwardIssue.fields.status.statusCategory.name
                   linked_issue_summary = this.outwardIssue.fields.summary
                   linked_url = this.outwardIssue.self
                 }
@@ -75,22 +79,21 @@ function populateIssueCard(card) {
                 linkedIssueNode.setAttribute("data-ticket-pull-id", $(card).data("issue-key"));
 
                 $.getJSON(linked_url, function (data) {
+
+                  console.log("Populating card " + $(card).attr("data-issue-key"))
                   var linked_sprint = "Not Scheduled"
                   console.log(`Checking sprints for: ${linked_issue_key} - ${linked_url}`)
                   if (data.fields.customfield_10020) {
                     $.each(data.fields.customfield_10020, function () {
-                      console.log(`Sprint ${this.name} is ${this.state}`)
                       linked_sprint = this.name
-                      console.log(`Linked sprint = ${linked_sprint}`)
                     })
-                    console.log(`Linked sprint = ${linked_sprint}`)
                   }
 
-                  console.log(`Link Type: ${link_type} Issue Key: ${linked_issue_key} Status: ${linked_issue_status} Sprint: ${linked_sprint}`)
+                  console.log(`Link Type: ${link_type} Issue Key: ${linked_issue_key} Status: ${linked_issue_status} Sprint: ${linked_sprint} Inward: ${inward} Self: ${data.self}`)
 
                   $(linkedIssueNode).append("<span style=\"cursor:pointer;font-size:12px;color: rgb(107, 119, 140);\" data-tooltip=\"" + linked_issue_summary + " - " + linked_sprint + "\"> " + link_type + " " + linked_issue_key + "</span> ");
 
-                  $(linkedIssueNode).append(linkStatus(linked_issue_status));
+                  $(linkedIssueNode).append(linkStatus(linked_issue_status, linked_issue_status_category, inward));
 
                   $(wrapper).append(linkedIssueNode);
 
@@ -158,20 +161,23 @@ function addPRLabels() {
     setTimeout(addPRLabels, 1500);
 }
 
-function linkStatus(status) {
-    switch (status) {
-        case "OPEN":
-            return "<span class=\"aui-lozenge aui-lozenge-overflow aui-lozenge-subtle aui-lozenge-complete\" style=\"color:#0052cc !important;border-color:#b3d4ff !important;\">OPEN</span>";
-            break;
-        case "MERGED":
-            return "<span class=\"aui-lozenge aui-lozenge-overflow aui-lozenge-subtle aui-lozenge-success\">MERGED</span>";
-            break;
-        case "DECLINED":
-            return "<span class=\"aui-lozenge aui-lozenge-overflow aui-lozenge-subtle aui-lozenge-error\">DECLINED</span>";
-            break;
-        default:
-            return "<span class=\"aui-lozenge aui-lozenge-overflow aui-lozenge-subtle\">" + status + "</span>";
-    }
+function linkStatus(status, statusCategory, subtle) {
+  if (subtle == true){
+    subtle = "aui-lozenge-subtle"
+  }
+  switch (statusCategory) {
+      case "In Progress":
+          return `<span class=\"aui-lozenge aui-lozenge-moved ${subtle}\">${status}</span>`;
+          break;
+      case "Done":
+          return `<span class=\"aui-lozenge aui-lozenge-success ${subtle}\">${status}</span>`;
+          break;
+      case "To Do":
+          return `<span class=\"aui-lozenge aui-lozenge-error ${subtle}\">${status}</span>`;
+          break;
+      default:
+          return `<span class=\"aui-lozenge aui-lozenge-overflow aui-lozenge-subtle\" style=\"color:#a8a8a8 border-color:#a8a8a8\">${status}</span>`;
+  }
 }
 
 /* Helper Functions */
