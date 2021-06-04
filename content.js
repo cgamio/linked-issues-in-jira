@@ -54,30 +54,50 @@ function populateIssueCard(card) {
                 var linked_issue_key
                 var linked_issue_status
                 var linked_issue_summary
+                var linked_url
 
                 if (this["inwardIssue"]) {
                   link_type = this.type.inward
                   linked_issue_key = this.inwardIssue.key
                   linked_issue_status = this.inwardIssue.fields.status.name
                   linked_issue_summary = this.inwardIssue.fields.summary
+                  linked_url = this.inwardIssue.self
                 } else {
                   link_type = this.type.outward
                   linked_issue_key = this.outwardIssue.key
                   linked_issue_status = this.outwardIssue.fields.status.name
                   linked_issue_summary = this.outwardIssue.fields.summary
+                  linked_url = this.outwardIssue.self
                 }
-
-                console.log(`Link Type: ${link_type} Issue Key: ${linked_issue_key} Status: ${linked_issue_status}`)
 
                 var linkedIssueNode = document.createElement("div");
                 linkedIssueNode.classList.add("pullRequestNode");
                 linkedIssueNode.setAttribute("data-ticket-pull-id", $(card).data("issue-key"));
 
-                $(linkedIssueNode).append("<span style=\"cursor:pointer;font-size:12px;color: rgb(107, 119, 140);\" data-tooltip=\"" + linked_issue_summary + "\"> " + link_type + " " + linked_issue_key + "</span> ");
+                $.getJSON(linked_url, function (data) {
+                  var linked_sprint = "Not Scheduled"
+                  console.log(`Checking sprints for: ${linked_issue_key} - ${linked_url}`)
+                  if (data.fields.customfield_10020) {
+                    $.each(data.fields.customfield_10020, function () {
+                      console.log(`Sprint ${this.name} is ${this.state}`)
+                      if (this.state != "closed") {
+                        linked_sprint = this.name
+                        console.log(`Linked sprint = ${linked_sprint}`)
+                      }
+                    })
+                  }
 
-                $(linkedIssueNode).append(linkStatus(linked_issue_status));
+                  console.log(`Link Type: ${link_type} Issue Key: ${linked_issue_key} Status: ${linked_issue_status} Sprint: ${linked_sprint}`)
 
-                $(wrapper).append(linkedIssueNode);
+                  $(linkedIssueNode).append("<span style=\"cursor:pointer;font-size:12px;color: rgb(107, 119, 140);\" data-tooltip=\"" + linked_issue_summary + " - " + linked_sprint + "\"> " + link_type + " " + linked_issue_key + "</span> ");
+
+                  $(linkedIssueNode).append(linkStatus(linked_issue_status));
+
+                  $(wrapper).append(linkedIssueNode);
+
+                })
+
+
 
                     });
                 }
