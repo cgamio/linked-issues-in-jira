@@ -41,8 +41,13 @@ window.addEventListener("message", function (event) {
 function populateIssueCard(card) {
     $.getJSON("https://" + JIRA_HOSTNAME + "/rest/api/latest/issue/" + $(card).attr("data-issue-key"), function (data) {
       if (data.fields.issuelinks.length > 0) {
+            var card_content = $(card).find(".ghx-issue-content");
+            if (card_content.length) {
+              $(card_content).append("<div class=\"link-status-in-jira-wrapper\"></div>");
+            } else {
+              $(card).append("<div class=\"link-status-in-jira-wrapper\"></div>");
+            }
 
-            $(card).append("<div class=\"link-status-in-jira-wrapper\"></div>");
             var wrapper = $(card).find(".link-status-in-jira-wrapper");
 
             // heading for pull requests
