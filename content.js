@@ -52,7 +52,6 @@ function populateIssueCard(card) {
                 }
 
                 if (wrapper === undefined) {
-                  console.log("Wrapper not defined, adding it")
                   if (card_content.length) {
                     $(card_content).append("<div class=\"link-status-in-jira-wrapper\"></div>");
                   } else {
@@ -61,8 +60,6 @@ function populateIssueCard(card) {
 
                   wrapper = $(card).find(".link-status-in-jira-wrapper");
                   $(wrapper).append("<div class=\"link-heading\">Linked Issues</div>");
-                } else {
-                  console.log("Wrapper is already defined")
                 }
 
                 if (this["inwardIssue"]) {
@@ -88,16 +85,12 @@ function populateIssueCard(card) {
 
                 $.getJSON(linked_url, function (data) {
 
-                  console.log("Populating card " + $(card).attr("data-issue-key"))
                   var linked_sprint = "Not Scheduled"
-                  console.log(`Checking sprints for: ${linked_issue_key} - ${linked_url}`)
                   if (data.fields.customfield_10020) {
                     $.each(data.fields.customfield_10020, function () {
                       linked_sprint = this.name
                     })
                   }
-
-                  console.log(`Link Type: ${link_type} Issue Key: ${linked_issue_key} Status: ${linked_issue_status} Sprint: ${linked_sprint} Inward: ${inward} Self: ${data.self}`)
 
                   $(linkedIssueNode).append("<span style=\"cursor:pointer;font-size:12px;color: rgb(107, 119, 140);\" data-tooltip=\"" + linked_issue_summary + " - " + linked_sprint + "\"> " + link_type + " " + linked_issue_key + "</span> ");
 
@@ -115,30 +108,22 @@ function populateIssueCard(card) {
         }
 
 function addLinks() {
-  console.log("Adding link info to cards")
 
 
     if ($(".link-status-in-jira-wrapper").length == 0) {
-
-      console.log("link-status-in-jira not found, creating it")
-      console.log("Linked Columns " + LINKED_COLUMNS)
 
         // We don't care to rebuild this list multiple times if we have
         // already determined it once
         if (!JIRA_COLUMNS.length) {
             $.each($("#ghx-column-headers .ghx-column h2"), function () {
                 var column_text = $(this).text();
-                console.log("Column Text: " + column_text)
 
                 if (LINKED_COLUMNS.indexOf(column_text) !== -1) {
-                    console.log("Pushing " + $(this).parent().parent().parent().attr("data-id"))
 
                     JIRA_COLUMNS.push($(this).parent().parent().parent().attr("data-id"));
                 }
             });
         }
-
-        console.log("Jira Columns: " + JIRA_COLUMNS)
 
         // select the right columns if there are multiple, and search for all cards in those
         // columns afterwards
@@ -152,15 +137,10 @@ function addLinks() {
           allSelectors = allSelectors.concat(`, ${columnSelectors}`)
         }
 
-        console.log("All selectors: " + allSelectors)
-
         var cards = document.querySelectorAll(allSelectors);
-
-        console.log("Cards: " + cards)
 
 
         Array.prototype.forEach.call(cards, function (card) {
-            console.log("Populating Card: " + card)
             populateIssueCard(card);
         });
 
