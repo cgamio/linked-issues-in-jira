@@ -8,13 +8,13 @@ var IGNORE_LINK_TYPES = ["Cloners", "Issue Split", "Relates"];
 
 // get settings for the chrome extension
 chrome.storage.sync.get({
-    linked_columns: "",
+    link_columns: "",
     ignore_link_types: ""
 }, function (items) {
 
 
-      if (items.linked_columns) {
-        LINKED_COLUMNS = items.linked_columns
+      if (items.link_columns) {
+        LINKED_COLUMNS = items.link_columns
             .split(",")
             .map(function (element) {
                 return element.trim();
@@ -34,9 +34,12 @@ chrome.storage.sync.get({
 
 function populateIssueCard(card) {
     $.getJSON("https://" + JIRA_HOSTNAME + "/rest/api/latest/issue/" + $(card).attr("data-issue-key"), function (data) {
+      console.log(`Populating Card ${$(card).attr("data-issue-key")}`)
       if (data.fields.issuelinks.length > 0) {
             var card_content = $(card).find(".ghx-issue-content");
             var wrapper = undefined
+
+            console.log(`We have some links!`)
 
             $.each(data.fields.issuelinks, function () {
                 var link_type
