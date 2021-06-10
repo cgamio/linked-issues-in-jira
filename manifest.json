@@ -1,5 +1,5 @@
 {
-    "name": "Linked Issue Status for JIRA Sprints",
+    "name": "Linked Issue Info for Jira Cards",
     "version": "0.0.1",
     "description": "Adds information to cards in the JIRA sprint view to show the status of linked issues",
     "manifest_version": 2,
