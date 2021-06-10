@@ -4,15 +4,25 @@
 var JIRA_HOSTNAME = window.location.hostname;
 var LINKED_COLUMNS = ["To Do", "In Progress", "QA Queue", "In Review"];
 var JIRA_COLUMNS = [];
+var IGNORE_LINK_TYPES = ["Cloners", "Issue Split", "Relates"];
 
 // get settings for the chrome extension
 chrome.storage.sync.get({
     linked_columns: "",
+    ignore_link_types: ""
 }, function (items) {
 
 
       if (items.linked_columns) {
         LINKED_COLUMNS = items.linked_columns
+            .split(",")
+            .map(function (element) {
+                return element.trim();
+            });
+      }
+
+      if (items.ignore_link_types) {
+        IGNORE_LINK_TYPES = items.ignore_link_types
             .split(",")
             .map(function (element) {
                 return element.trim();
@@ -26,16 +36,7 @@ function populateIssueCard(card) {
     $.getJSON("https://" + JIRA_HOSTNAME + "/rest/api/latest/issue/" + $(card).attr("data-issue-key"), function (data) {
       if (data.fields.issuelinks.length > 0) {
             var card_content = $(card).find(".ghx-issue-content");
-            if (card_content.length) {
-              $(card_content).append("<div class=\"link-status-in-jira-wrapper\"></div>");
-            } else {
-              $(card).append("<div class=\"link-status-in-jira-wrapper\"></div>");
-            }
-
-            var wrapper = $(card).find(".link-status-in-jira-wrapper");
-
-            // heading for pull requests
-            $(wrapper).append("<div class=\"link-heading\">Linked Issues</div>");
+            var wrapper = undefined
 
             $.each(data.fields.issuelinks, function () {
                 var link_type
@@ -45,6 +46,24 @@ function populateIssueCard(card) {
                 var linked_issue_summary
                 var linked_url
                 var inward = false
+
+                if(IGNORE_LINK_TYPES.includes(this.type.name)){
+                  return true
+                }
+
+                if (wrapper === undefined) {
+                  console.log("Wrapper not defined, adding it")
+                  if (card_content.length) {
+                    $(card_content).append("<div class=\"link-status-in-jira-wrapper\"></div>");
+                  } else {
+                    $(card).append("<div class=\"link-status-in-jira-wrapper\"></div>");
+                  }
+
+                  wrapper = $(card).find(".link-status-in-jira-wrapper");
+                  $(wrapper).append("<div class=\"link-heading\">Linked Issues</div>");
+                } else {
+                  console.log("Wrapper is already defined")
+                }
 
                 if (this["inwardIssue"]) {
                   link_type = this.type.inward
