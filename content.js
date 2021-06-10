@@ -34,12 +34,9 @@ chrome.storage.sync.get({
 
 function populateIssueCard(card) {
     $.getJSON("https://" + JIRA_HOSTNAME + "/rest/api/latest/issue/" + $(card).attr("data-issue-key"), function (data) {
-      console.log(`Populating Card ${$(card).attr("data-issue-key")}`)
       if (data.fields.issuelinks.length > 0) {
             var card_content = $(card).find(".ghx-issue-content");
             var wrapper = undefined
-
-            console.log(`We have some links!`)
 
             $.each(data.fields.issuelinks, function () {
                 var link_type
